@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+%:
+	dh $@
+
+
+#clean:
+#build:
+#build-arch:
+#build-indep:
+#install:
+#binary:
+#binary-arch:
+#binary-indep:
+#get-orig-source:

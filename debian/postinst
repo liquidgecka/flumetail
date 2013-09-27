@@ -1,0 +1,6 @@
+#!/bin/sh -e
+
+#DEBHELPER#
+
+mkdir -p /var/spool/flumetail
+chown root:root /var/spool/flumetail
