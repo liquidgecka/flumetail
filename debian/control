@@ -1,0 +1,20 @@
+Section: misc
+Maintainer: Brady Catherman <ubuntu@gecka.us>
+Source: flumetail
+Priority: extra
+Standards-Version: 3.9.4
+Build-Depends: debhelper, golang-go
+Homepage: https://github.com/liquidgecka/flumetail
+Vcs-Git: git://github.com/liquidgecka/flumetail.git
+Vcs-Browser: https://github.com/liquidgecka/flumetail
+
+Package: flumetail
+Architecture: amd64
+Depends: ${misc:Depends}
+Suggests: apache-flume
+Description: Shuttles log lines to flume.
+ The tool in this package will tail log files and send the results to an apache
+ flume server running an http/json server. This will track what lines have
+ been successfully sent in order to prevent accidental duplication, however it
+ still follows a at least once semantic so some duplication might happen. This
+ tool will survice file rotation, truncation, etc.

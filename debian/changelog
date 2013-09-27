@@ -1,0 +1,23 @@
+flumetail (0.3-1) raring; urgency=low
+
+  * Initial commit to github.
+
+ -- Brady Catherman <ubuntu@gecka.us>  Thu, 26 Sep 2013 20:19:08 -0600
+
+flumetail (0.2-1) raring; urgency=low
+
+  * Fixes a bug in the /var/spool path name.
+
+ -- Brady Catherman <ubuntu@gecka.us>  Mon, 26 Sep 2013 11:23:11 -0600
+
+flumetail (0.1-2) raring; urgency=low
+
+  * Fix a bug in postinst.
+
+ -- Brady Catherman <ubuntu@gecka.us>  Mon, 09 Sep 2013 11:07:18 -0600
+
+flumetail (0.1-1) raring; urgency=low
+
+  * Very beta initial release.
+
+ -- Brady Catherman <ubuntu@gecka.us>  Mon, 09 Sep 2013 11:07:18 -0600

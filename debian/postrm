@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+#DEBHELPER#
+
+if [ -d /var/spool/flumetail ] ; then
+	rm -rf /var/spool/flumetail
+fi
