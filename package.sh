@@ -28,6 +28,6 @@ cd "${TEMPDIR}"
 tar -c "flumetail-${VERSION}" | gzip > "flumetail_${VERSION}.orig.tar.gz"
 
 (cd "${TEMPDIR}/flumetail-${VERSION}/" && debuild -S -sa)
-#dput ppa:liquidgecka/flume "flumetail_${FULLVERSION}_source.changes"
-#backportpackage -d quantal --upload "ppa:${PPA}" "flumetail_${FULLVERSION}.dsc"
-#backportpackage -d precise --upload "ppa:${PPA}" "flumetail_${FULLVERSION}.dsc"
+dput ppa:liquidgecka/flume "flumetail_${FULLVERSION}_source.changes"
+backportpackage -d quantal --upload "ppa:${PPA}" "flumetail_${FULLVERSION}.dsc"
+backportpackage -d precise --upload "ppa:${PPA}" "flumetail_${FULLVERSION}.dsc"

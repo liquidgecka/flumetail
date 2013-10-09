@@ -1,3 +1,9 @@
+flumetail (0.4-1) raring; urgency=low
+
+  * Make flumetail die less when upstream flume is down.
+
+ -- Brady Catherman <ubuntu@gecka.us>  Wed, 09 Oct 2013 13:09:34 -0600
+
 flumetail (0.3-1) raring; urgency=low
 
   * Initial commit to github.

@@ -93,14 +93,14 @@ func processRoutine(host string, port int, process chan *data, cache string) {
 	mime := "application/json"
 	for {
 		// Json data that will be sent to the flume server.
-		body := make([]map[string]interface{}, 0, 25)
+		body := make([]map[string]interface{}, 0, 100)
 
 		// Blocking get on the first element.
 		data := <-process
 		body = append(body, makeMap(data))
 
 		// Non blocking read of at most 24 more elements.
-		for i := 0; i < 24; i++ {
+		for i := 0; i < 100; i++ {
 			select {
 			case data = <-process:
 				body = append(body, makeMap(data))
@@ -116,29 +116,40 @@ func processRoutine(host string, port int, process chan *data, cache string) {
 			die("Error marshaling data for flume.")
 		}
 
-		// Perform the actual HTTP POST request.
-		resp, err := http.Post(url, mime, bytes.NewBuffer(jsonBytes))
-		if err != nil {
-			die("Unexpected error from http: %s", err)
-		}
-		resp.Body.Close()
-		if resp.StatusCode != 200 {
-			die("Non 200 response code from the flume server: %d",
-				resp.StatusCode)
-		}
+		// Loop until a successful request is made.
+		for {
+			// Perform the actual HTTP POST request.
+			resp, err := http.Post(url, mime, bytes.NewBuffer(jsonBytes))
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Unexpected error from http: %s\n", err)
+				time.Sleep(time.Second)
+				continue
+			}
+			resp.Body.Close()
+			if resp.StatusCode != 200 {
+				fmt.Fprintf(os.Stderr,
+					"Non 200 response code from the flume server: %d\n",
+					resp.StatusCode)
+				time.Sleep(time.Second)
+				continue
+			}
 
-		// Update the cache.
-		mode := os.O_WRONLY | os.O_TRUNC | os.O_CREATE
-		perm := os.FileMode(0644)
-		fd, err := os.OpenFile(cache, mode, perm)
-		if err != nil {
-			die("Unknown error opening cache file: %s", err)
+			// Update the cache.
+			mode := os.O_WRONLY | os.O_TRUNC | os.O_CREATE
+			perm := os.FileMode(0644)
+			fd, err := os.OpenFile(cache, mode, perm)
+			if err != nil {
+				die("Unknown error opening cache file: %s", err)
+			}
+			encoder := json.NewEncoder(fd)
+			if err := encoder.Encode(data); err != nil {
+				die("Error reading cache file: %s", err)
+			}
+			fd.Close()
+
+			// Success!
+			break
 		}
-		encoder := json.NewEncoder(fd)
-		if err := encoder.Encode(data); err != nil {
-			die("Error reading cache file: %s", err)
-		}
-		fd.Close()
 	}
 }
 
