@@ -1,29 +1,24 @@
+flumetail (0.5-1) raring; urgency=low
+  * Make flumetail support timestamp tagging of log lines via a bunch
+    if horrible and annoying arguments.
+ -- Brady Catherman <ubuntu@gecka.us>  Tue, 15 Oct 2013 16:06:56 -0600
+
 flumetail (0.4-1) raring; urgency=low
-
   * Make flumetail die less when upstream flume is down.
-
  -- Brady Catherman <ubuntu@gecka.us>  Wed, 09 Oct 2013 13:09:34 -0600
 
 flumetail (0.3-1) raring; urgency=low
-
   * Initial commit to github.
-
  -- Brady Catherman <ubuntu@gecka.us>  Thu, 26 Sep 2013 20:19:08 -0600
 
 flumetail (0.2-1) raring; urgency=low
-
   * Fixes a bug in the /var/spool path name.
-
  -- Brady Catherman <ubuntu@gecka.us>  Mon, 26 Sep 2013 11:23:11 -0600
 
 flumetail (0.1-2) raring; urgency=low
-
   * Fix a bug in postinst.
-
  -- Brady Catherman <ubuntu@gecka.us>  Mon, 09 Sep 2013 11:07:18 -0600
 
 flumetail (0.1-1) raring; urgency=low
-
   * Very beta initial release.
-
  -- Brady Catherman <ubuntu@gecka.us>  Mon, 09 Sep 2013 11:07:18 -0600

@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"syscall"
 	"time"
@@ -34,12 +35,30 @@ var (
 	cachedir = flag.String(
 		"cachedir",
 		"/var/spool/flumetail",
-		"The directory where data is stored about each log file being read.",
+		"The directory where data is stored about\n"+
+		"\teach log file being read.",
+	)
+	dategroup = flag.Int(
+		"dategroup",
+		1,
+		"The capturing group from 'datere' which stores the\n"+
+		"\tactual date string which is parsed using 'format'.",
+	)
+	datere = flag.String(
+		"datere",
+		"",
+		"A regular expression for matching the date within the"+
+		"log line.",
 	)
 	filename = flag.String(
 		"file",
 		"",
 		"The file name to read log items out of.",
+	)
+	format = flag.String(
+		"format",
+		"",
+		"The date format string (golang).",
 	)
 	host = flag.String("host", "", "The host to send the log items to.")
 	port = flag.Int("port", 0, "The port on the host to send the logs too.")
@@ -78,10 +97,37 @@ func newData(line []byte, fi os.FileInfo, end int64) *data {
 // Returns a map[string]interface{} that can be used when sending data to
 // flume. This will eventually get quite smart but for now is nothing more
 // than a trivial wrapper around the data.
-func makeMap(data *data) map[string]interface{} {
-	return map[string]interface{}{
-		"body": string(data.Line),
+func makeMap(data *data, re *regexp.Regexp) map[string]interface{} {
+	line := string(data.Line)
+	output := make(map[string]interface{}, 5)
+	output["body"] = line
+
+	// If no regexp is defined then return quickly.
+	if re == nil {
+		return output
 	}
+
+	// Find all matching groups, and if there are not enough them
+	// then bail out early since we won't be able to find a date.
+	groups := re.FindStringSubmatch(line)
+	fmt.Println(groups)
+	if len(groups) <= *dategroup {
+		fmt.Fprintf(os.Stderr, "Malformed line: %s", line)
+		return output
+	}
+
+	// Attempt to parse the timestamp.
+	ts, err := time.Parse(*format, groups[*dategroup])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Malformed date (%s): %s\n",
+			err, groups[*dategroup])
+		return output
+	}
+
+	output["headers"] = map[string]interface{}{
+		"timestamp": ts.Unix(),
+	}
+	return output
 }
 
 // Reads elements from the process channel and attempts to write them to the
@@ -89,6 +135,14 @@ func makeMap(data *data) map[string]interface{} {
 // possible. Cache is a file that will be used to store meta information
 // about what has been read from the given files.
 func processRoutine(host string, port int, process chan *data, cache string) {
+	// Compile the date regular expression.
+	regex, err := regexp.Compile(*datere)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to compile --datere: %s\n",
+			err)
+		regex = nil
+	}
+
 	url := fmt.Sprintf("http://%s:%d/", host, port)
 	mime := "application/json"
 	for {
@@ -97,13 +151,13 @@ func processRoutine(host string, port int, process chan *data, cache string) {
 
 		// Blocking get on the first element.
 		data := <-process
-		body = append(body, makeMap(data))
+		body = append(body, makeMap(data, regex))
 
 		// Non blocking read of at most 24 more elements.
 		for i := 0; i < 100; i++ {
 			select {
 			case data = <-process:
-				body = append(body, makeMap(data))
+				body = append(body, makeMap(data, regex))
 				data = data
 			default:
 				break
