@@ -36,19 +36,19 @@ var (
 		"cachedir",
 		"/var/spool/flumetail",
 		"The directory where data is stored about\n"+
-		"\teach log file being read.",
+			"\teach log file being read.",
 	)
 	dategroup = flag.Int(
 		"dategroup",
 		1,
 		"The capturing group from 'datere' which stores the\n"+
-		"\tactual date string which is parsed using 'format'.",
+			"\tactual date string which is parsed using 'format'.",
 	)
 	datere = flag.String(
 		"datere",
 		"",
 		"A regular expression for matching the date within the"+
-		"log line.",
+			"log line.",
 	)
 	filename = flag.String(
 		"file",
@@ -136,11 +136,15 @@ func makeMap(data *data, re *regexp.Regexp) map[string]interface{} {
 // about what has been read from the given files.
 func processRoutine(host string, port int, process chan *data, cache string) {
 	// Compile the date regular expression.
-	regex, err := regexp.Compile(*datere)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to compile --datere: %s\n",
-			err)
-		regex = nil
+	var regex *regexp.Regexp
+	if *datere != "" {
+		var err error
+		regex, err = regexp.Compile(*datere)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Unable to compile --datere: %s\n",
+				err)
+			regex = nil
+		}
 	}
 
 	url := fmt.Sprintf("http://%s:%d/", host, port)
@@ -197,7 +201,7 @@ func processRoutine(host string, port int, process chan *data, cache string) {
 			}
 			encoder := json.NewEncoder(fd)
 			if err := encoder.Encode(data); err != nil {
-				die("Error reading cache file: %s", err)
+				die("Error writing cache file: %+v", err)
 			}
 			fd.Close()
 
@@ -253,7 +257,7 @@ func readLines(fd *os.File, start int64, process chan *data) (end int64) {
 		// Process the error returned in Read() if any.
 		if err != nil {
 			if err != io.EOF {
-				die("Error reading file: %s", err)
+				die("Error reading file: %#v", err)
 			}
 			return end
 		}
@@ -281,7 +285,9 @@ func watchFile(filename string, host string, port int) {
 		decoder := json.NewDecoder(fd)
 		if err := decoder.Decode(&initial); err != nil {
 			fd.Close()
-			die("Error reading cache file: %s", err)
+			if err != io.EOF {
+				die("Error reading cache file: %#v", err)
+			}
 		}
 		fd.Close()
 	} else if !os.IsNotExist(err) {

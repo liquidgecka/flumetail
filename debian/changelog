@@ -1,3 +1,8 @@
+flumetail (0.6-1) raring; urgency=low
+  * Fix some bugs in flumetail where the process will aggressivly overlog
+    and crash if the cache file is empty.
+ -- Brady Catherman <ubuntu@gecka.us>  Tue, 24 Oct 2013 16:31:56 -0600
+
 flumetail (0.5-1) raring; urgency=low
   * Make flumetail support timestamp tagging of log lines via a bunch
     if horrible and annoying arguments.
