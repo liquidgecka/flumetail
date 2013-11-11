@@ -1,3 +1,11 @@
+flumetail (0.7-1) saucy; urgency=low
+  * Updated packaging script for saucy.
+ -- Brady Catherman <ubuntu@gecka.us>  Fri, 11 Nov 2013 16:49:21 -0700
+
+flumetail (0.6-2) saucy; urgency=low
+  * Build for Saucy
+ -- Brady Catherman <ubuntu@gecka.us>  Fri, 1 Nov 2013 14:20:21 -0600
+
 flumetail (0.6-1) raring; urgency=low
   * Fix some bugs in flumetail where the process will aggressivly overlog
     and crash if the cache file is empty.
