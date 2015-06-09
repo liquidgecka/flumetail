@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-PPA=liquidgecka/flume
+PPA=liquidgecka/new
 
 if [ ! -f flumetail.go ] ; then
   echo "Please run this from the flumetail root." >2
@@ -33,7 +33,17 @@ if ! curl -fs "$GZURL" > "flumetail_${VERSION}.orig.tar.gz" ; then
 fi
 
 (cd "${TEMPDIR}/flumetail-${VERSION}/" && debuild -S -sa)
-dput ppa:liquidgecka/flume "flumetail_${FULLVERSION}_source.changes"
-backportpackage -d quantal --upload "ppa:${PPA}" "flumetail_${FULLVERSION}.dsc"
-backportpackage -d precise --upload "ppa:${PPA}" "flumetail_${FULLVERSION}.dsc"
-backportpackage -d raring --upload "ppa:${PPA}" "flumetail_${FULLVERSION}.dsc"
+
+DISTRO="$( lsb_release -c | awk '{print $2}' )"
+DISTROS="$( distro-info --supported )"
+
+dput "ppa:${PPA}" "flumetail_${FULLVERSION}_source.changes"
+
+# Upload backported packages.
+for i in $DISTROS ; do
+  if [ "$i" == "$DISTRO" ] ; then
+    continue
+  fi
+  backportpackage -d "${i}" --upload "ppa:${PPA}" \
+      "flumetail_${VERSION}-${RELEASE}.dsc"
+done
